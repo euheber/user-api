@@ -3,7 +3,7 @@ const PasswordModel = require("../models/PasswordToken")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 
-const secret = 'asoiuh1r12asedf51'
+const secret = "asoiuh1r12asedf51"
 
 class UserController {
   async index(req, res) {
@@ -26,9 +26,17 @@ class UserController {
   async create(req, res) {
     const { email, name, password } = req.body
 
-    if (email == undefined || email == '' || email == ' ') {
+    if (email == undefined || email == "" || email == " ") {
       res.status(400)
       res.json({ err: "Email inválido ou em branco" })
+      return
+    }
+
+    const emailExists = await UserModel.findEmail(email)
+
+    if (emailExists) {
+      res.status(406)
+      res.json({ err: "O e-mail já está cadastrado!" })
       return
     }
 
@@ -120,15 +128,16 @@ class UserController {
     if (user) {
       const result = await bcrypt.compare(password, user.password)
 
-      if(result){ 
-        const token = jwt.sign({email: user.email, role: user.role}, secret)
-        res.json({token})
+      if (result) {
+        const token = jwt.sign({ email: user.email, role: user.role }, secret)
+        res.json({ token })
         res.status(200)
-      }else{
-        res.staus(406)
+      } else {
+        res.status(406)
         res.send("Senha incorreta")
       }
     } else {
+      res.status(406)
       res.json({ status: false })
     }
   }

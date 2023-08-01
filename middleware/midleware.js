@@ -10,8 +10,8 @@ module.exports = function (req, res, next) {
 
     try{
         const decoded = jwt.verify(token,secret);
-        
         if(decoded.role){
+            
             next();
         }else{
             res.status(403);
@@ -21,6 +21,7 @@ module.exports = function (req, res, next) {
     }catch(err){
         res.status(403);
         res.send("Você não está autenticado");
+
         return;
     }
 }else{
